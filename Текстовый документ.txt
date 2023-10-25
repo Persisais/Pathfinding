@@ -1,0 +1,59 @@
+def start():
+    global startPoint, endPoint, frontier
+    #startPoint.seen = True
+    fillNeighbours()
+    startPoint.cost=0
+    heuristic(startPoint)
+    startPoint.totalCost=startPoint.cost+startPoint.heuristic
+    frontier.put((startPoint.totalCost, id(startPoint), startPoint))
+
+    # frontier.put(startPoint, 0)
+    #checkTile(startPoint)
+    while not frontier.empty():
+        current = frontier.get()[2]
+        if current==endPoint:
+            break
+        checkNeighbours(current)
+        root.update()
+        root.after(100)
+        root.update()
+    current = endPoint.previous
+    while current != startPoint:
+        current.button.configure(bg="#1133FF")
+        current = current.previous
+    # countTotalCost(startPoint)
+
+
+def heuristic(current):
+    global endPoint
+    current.heuristic = abs(current.x - endPoint.x) + abs(current.y - endPoint.y)
+    current.button.configure(text=current.heuristic)
+
+
+def checkTile(current):
+    global startPoint, endPoint, frontier
+    heuristic(current)
+    current.totalCost = current.heuristic + current.cost
+    current.button.configure(
+        text=str(current.cost) + " " + str(current.heuristic) + "\n" + str(current.totalCost))  # TODO
+    if current != startPoint and current != endPoint:
+        current.button.configure(bg="#42aaff")
+        current.type = 4
+    current.seen = True
+    frontier.put((current.totalCost, id(current), current))
+
+
+def checkNeighbours(current):
+    global tilesArray
+    for neighbour in current.neighbours:
+        newCost=current.cost+1
+        if neighbour.seen==False or newCost<neighbour.cost:
+            neighbour.cost=newCost
+            heuristic(neighbour)
+            neighbour.totalCost=neighbour.cost+neighbour.heuristic
+            frontier.put((neighbour.totalCost, id(neighbour), neighbour))
+            neighbour.previous=current
+            neighbour.button.configure(
+                text=str(neighbour.cost) + " " + str(neighbour.heuristic) + "\n" + str(neighbour.totalCost))  # TODO
+            if neighbour != startPoint and neighbour != endPoint:
+                neighbour.button.configure(bg="#42aaff")
